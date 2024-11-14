@@ -19,12 +19,14 @@ class PDSim:
         self.spatial_filter_cutoff = self.params['spatial_filter_cutoff_cpm'] * 1e3  # Spatial filter cutoff in cycles per meter
 
     def grid_setup(self):
-        # Calculate the physical field of view based on pixel density and grid dimensions
-        self.L_x = self.params['N'] / self.params['pixels_per_mm'] * 1e-3  # Field of view in x direction (meters)
-        self.L_y = self.params['M'] / self.params['pixels_per_mm'] * 1e-3  # Field of view in y direction (meters)
+        # Calculate the physical field of view based on pixel density and canvas dimensions
+        self.L = self.params['canvas_size_mm'] * 1e-3  # Field of view in meters (square)
+        self.pixels_per_mm = self.params['pixels_per_mm']  # Pixel density in pixels per millimeter
+        self.N = int(self.L * self.pixels_per_mm * 1e3)  # Number of pixels in x direction
+        self.M = self.N  # Number of pixels in y direction (square canvas)
         # Define x and y coordinates for the simulation grid (in physical units)
-        self.x = np.linspace(-self.L_x / 2, self.L_x / 2, self.params['N'])  # x-coordinates
-        self.y = np.linspace(-self.L_y / 2, self.L_y / 2, self.params['M'])  # y-coordinates
+        self.x = np.linspace(-self.L / 2, self.L / 2, self.N)  # x-coordinates
+        self.y = np.linspace(-self.L / 2, self.L / 2, self.M)  # y-coordinates
 
     def simulate(self):
         # Vectorized operations using broadcasting
@@ -41,21 +43,21 @@ class PDSim:
         t_xy *= defect_transition  # Apply transition
 
         # Define the amplitude mask based on opacity and the defect profile
-        self.amplitude_mask = 1 - self.params['opacity'] * (t_xy > 0).astype(float)
+        self.amplitude_mask = 1 - self.params['opacity'] * (r_defect <= 1).astype(float)
 
         # Calculate the phase shift based on the thickness profile
         delta_n = 1.5 - 1.0  # Difference in refractive index
         self.phase_shift_xy = (2 * np.pi / self.wavelength) * delta_n * t_xy  # Phase shift
 
         # Initial plane wave and apply combined amplitude-phase modulation
-        initial_wave = np.ones((self.params['N'], self.params['M']), dtype=complex)  # Initial wave
+        initial_wave = np.ones((self.N, self.M), dtype=complex)  # Initial wave
         self.modulated_wave = initial_wave * self.amplitude_mask * np.exp(1j * self.phase_shift_xy)  # Modulated wave
 
         # Define spatial frequency arrays
-        d_x = self.L_x / self.params['N']  # Pixel spacing in x direction
-        d_y = self.L_y / self.params['M']  # Pixel spacing in y direction
-        fx = np.fft.fftfreq(self.params['N'], d=d_x)  # Spatial frequencies in x
-        fy = np.fft.fftfreq(self.params['M'], d=d_y)  # Spatial frequencies in y
+        d_x = self.L / self.N  # Pixel spacing in x direction
+        d_y = self.L / self.M  # Pixel spacing in y direction
+        fx = np.fft.fftfreq(self.N, d=d_x)  # Spatial frequencies in x
+        fy = np.fft.fftfreq(self.M, d=d_y)  # Spatial frequencies in y
 
         # Fresnel transfer function for the specified propagation distance
         H_x = np.exp(-1j * np.pi * self.wavelength * self.propagation_distance * fx**2)  # Transfer function x-component

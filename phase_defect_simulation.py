@@ -43,13 +43,12 @@ propagation_distance = propagation_distance_mm * 1e-3
 spatial_filter_cutoff = spatial_filter_cutoff_cpm * 1e3  # cycles per meter
 
 # Calculate the physical field of view based on pixel density and grid dimensions
-L_x = N / pixels_per_mm * 1e-3  # Field of view in x direction (meters)
-L_y = M / pixels_per_mm * 1e-3  # Field of view in y direction (meters)
+L = params['canvas_size_mm'] * 1e-3  # Field of view in meters (square)
 
 # === GRID SETUP ===
 # Define x and y coordinates for the simulation grid (in physical units)
-x = np.linspace(-L_x / 2, L_x / 2, N)  # N points from -L_x/2 to L_x/2
-y = np.linspace(-L_y / 2, L_y / 2, M)  # M points from -L_y/2 to L_y/2
+x = np.linspace(-L / 2, L / 2, N)  # N points from -L_x/2 to L_x/2
+y = np.linspace(-L / 2, L / 2, M)  # M points from -L_y/2 to L_y/2
 
 # Vectorized operations using broadcasting
 X2 = x[:, np.newaxis]**2  # Shape (N, 1)
@@ -107,7 +106,7 @@ intensity = np.abs(U_z)**2  # Compute intensity
 fig, axs = plt.subplots(2, 2, figsize=(10, 10))
 
 # Top-left: Intensity profile
-extent = (-L_x / 2 * 1e3, L_x / 2 * 1e3, -L_y / 2 * 1e3, L_y / 2 * 1e3)
+extent = (-L / 2 * 1e3, L / 2 * 1e3, -L / 2 * 1e3, L / 2 * 1e3)
 intensity_img = axs[0, 0].imshow(intensity, cmap="gray", extent=extent, origin='lower')
 axs[0, 0].set_title("Intensity Profile")
 axs[0, 0].set_xlabel("x (mm)")

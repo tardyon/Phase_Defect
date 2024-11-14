@@ -6,9 +6,8 @@ class Parameters:
     def __init__(self):
         # Simulation parameters with units that can be easily modified
         self.wavelength_nm = 1000  # Wavelength in nanometers
-        self.pixels_per_mm = 1000.0 / 10  # Pixel density in pixels per millimeter
-        self.N = 1000  # Grid dimension: number of pixels in x direction
-        self.M = 1000  # Grid dimension: number of pixels in y direction
+        self.pixels_per_mm = 30  # Pixel density in pixels per millimeter
+        self.canvas_size_mm = 10.0  # Canvas size in millimeters (square)
         self.object_thickness_mm = 0.01  # Physical thickness of the object in millimeters
         self.a_mm = 0.400  # Semi-major axis of the ellipsoidal defect in millimeters (x-direction)
         self.b_mm = 0.400  # Semi-minor axis of the ellipsoidal defect in millimeters (y-direction)

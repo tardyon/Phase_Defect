@@ -10,13 +10,12 @@ class Plots:
     def plot_results(self):
         # Create a 2x2 grid of subplots
         fig, axs = plt.subplots(2, 2, figsize=(10, 10))
-        L_x = self.params['N'] / self.params['pixels_per_mm'] * 1e-3  # Field of view in x (meters)
-        L_y = self.params['M'] / self.params['pixels_per_mm'] * 1e-3  # Field of view in y (meters)
-        x = np.linspace(-L_x / 2, L_x / 2, self.params['N'])  # x-coordinates in meters
-        y = np.linspace(-L_y / 2, L_y / 2, self.params['M'])  # y-coordinates in meters
+        L = self.params['canvas_size_mm'] * 1e-3  # Field of view in meters (square)
+        x = np.linspace(-L / 2, L / 2, self.params['N'])  # x-coordinates in meters
+        y = np.linspace(-L / 2, L / 2, self.params['M'])  # y-coordinates in meters
 
         # Top-left: Intensity profile
-        extent = (-L_x / 2 * 1e3, L_x / 2 * 1e3, -L_y / 2 * 1e3, L_y / 2 * 1e3)  # Extent in millimeters
+        extent = (-L / 2 * 1e3, L / 2 * 1e3, -L / 2 * 1e3, L / 2 * 1e3)  # Extent in millimeters
         intensity_img = axs[0, 0].imshow(self.results['intensity'], cmap="gray", extent=extent, origin='lower')
         axs[0, 0].set_title("Intensity Profile")
         axs[0, 0].set_xlabel("x (mm)")
